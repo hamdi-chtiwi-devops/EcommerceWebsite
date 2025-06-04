@@ -1,0 +1,70 @@
+name: MERN E-commerce CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test_backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ecommerce-mern-project/backend
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install backend dependencies
+      run: npm install
+    - name: Run backend tests
+      run: npm test # Assumes backend test script will be updated
+
+  test_frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ecommerce-mern-project/frontend
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    - name: Install frontend dependencies
+      run: npm install
+    - name: Run frontend tests
+      run: npm test
+
+  build_and_push_images:
+    runs-on: ubuntu-latest
+    needs: [test_backend, test_frontend] # Run only if tests pass
+    if: github.ref == 'refs/heads/main' # Run only on push to main
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push backend Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: ./ecommerce-mern-project/backend
+        file: ./ecommerce-mern-project/backend/Dockerfile
+        push: true
+        tags: ghcr.io/${{ github.repository_owner }}/mern-ecommerce-backend:latest
+
+    - name: Build and push frontend Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: ./ecommerce-mern-project/frontend
+        file: ./ecommerce-mern-project/frontend/Dockerfile
+        push: true
+        tags: ghcr.io/${{ github.repository_owner }}/mern-ecommerce-frontend:latest
