@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 dotenv.config();
 
 // Connect to MongoDB
-const MONGO_URI = "postgresql://postgres:&qbcby777@@db.eyidcmslyiwybimmwhkr.supabase.co:5432/postgres";
+const MONGO_URI = "mongodb+srv://mrhamdichtiwi:qD356jiltt4ri4u4@taskme.b0zse.mongodb.net/?retryWrites=true&w=majority&appName=TaskMe";
 
 mongoose.connect(MONGO_URI, { /*useNewUrlParser: true, useUnifiedTopology: true*/ }) // useNewUrlParser and useUnifiedTopology are deprecated
   .then(() => console.log('MongoDB connected successfully.'))
